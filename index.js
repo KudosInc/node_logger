@@ -1,4 +1,5 @@
 const { getOr } = require('lodash/fp');
+const uuid = require('uuid/v4');
 const { createLogger, format, transports } = require('winston');
 const expressWinston = require('express-winston');
 const moment = require('moment');
@@ -73,11 +74,18 @@ function getPersonalizedFields(req, res) {
   }, {});
 }
 
-const logger = expressWinston.logger({
+const expressLogger = expressWinston.logger({
   winstonInstance: winstonLogger,
   requestFilter: customRequestFilter,
   responseFilter: customResponseFilter,
   dynamicMeta: getPersonalizedFields,
 });
 
-module.exports = { logger, log };
+module.exports = (app) => {
+  app.use(expressLogger);
+  app.use((req, res, next) => {
+    httpContext.set('request_id', uuid());
+    return next();
+  });
+  return log;
+};
