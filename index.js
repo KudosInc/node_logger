@@ -81,7 +81,7 @@ const expressLogger = expressWinston.logger({
   dynamicMeta: getPersonalizedFields,
 });
 
-module.exports = (app) => {
+const serverLogger = (app) => {
   app.use(expressLogger);
   app.use((req, res, next) => {
     httpContext.set('request_id', uuid());
@@ -89,3 +89,8 @@ module.exports = (app) => {
   });
   return log;
 };
+
+module.exports = {
+  serverLogger,
+  log,
+}
