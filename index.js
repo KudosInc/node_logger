@@ -93,4 +93,4 @@ const serverLogger = (app) => {
 module.exports = {
   serverLogger,
   log,
-}
+};
