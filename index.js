@@ -69,6 +69,7 @@ function getPersonalizedFields(req, res) {
     const headers = filteredHeaders;
     headers.status = res.statusCode;
     headers.request = req.url;
+    headers.request_id = req.headers['x-request-id'];
     return headers;
   }, {});
 }
