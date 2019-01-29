@@ -3,7 +3,9 @@ Logging service for node based micro-services
 
 ## Setup
 
-To install this package run this command in the console of any node service: `npm i node_logger@git+https://git@github.com/KudosInc/node_logger.git`
+To install this package run this command in the console of any node service: 
+
+`npm i node_logger@git+https://git@github.com/KudosInc/node_logger.git`
 
 ## Requirements
 - ExpressJs installed in case you want to use the server logger
