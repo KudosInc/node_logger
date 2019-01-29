@@ -69,6 +69,7 @@ function getPersonalizedFields(req, res) {
     const headers = filteredHeaders;
     headers.status = res.statusCode;
     headers.request = req.url;
+    headers.request_id = req.headers['x-request-id'];
     return headers;
   }, {});
 }
@@ -81,11 +82,12 @@ const expressLogger = expressWinston.logger({
 });
 
 const serverLogger = (app) => {
-  app.use(expressLogger);
+  app.use(httpContext.middleware);
   app.use((req, res, next) => {
     httpContext.set('request_id', uuid());
     return next();
   });
+  app.use(expressLogger);
   return log;
 };
 
