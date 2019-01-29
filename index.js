@@ -84,11 +84,11 @@ const expressLogger = expressWinston.logger({
 });
 
 const serverLogger = (app) => {
-  app.use(expressLogger);
   app.use((req, res, next) => {
     httpContext.set('request_id', uuid());
     return next();
   });
+  app.use(expressLogger);
   return log;
 };
 
