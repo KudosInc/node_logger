@@ -1,6 +1,6 @@
 {
   "name": "node_logger",
-  "version": "0.9.3",
+  "version": "0.9.4",
   "description": "A logger to log for node services",
   "main": "index.js",
   "scripts": {
