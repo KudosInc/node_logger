@@ -16,9 +16,6 @@ const formats = (info) => {
   const string = JSON.stringify(info);
   const obj = JSON.parse(string);
   const requestId = httpContext.get('request_id');
-  console.log('here!!!!!!!');
-  console.log(requestId);
-  console.log('here!!!12');
   const logstashOutput = {
     request_id: requestId,
     '@timestamp': moment().format(),
@@ -84,6 +81,7 @@ const expressLogger = expressWinston.logger({
 });
 
 const serverLogger = (app) => {
+  app.use(httpContext.middleware);
   app.use((req, res, next) => {
     httpContext.set('request_id', uuid());
     return next();
