@@ -67,7 +67,6 @@ function customResponseFilter() {
 function getPersonalizedFields(req, res) {
   return Object.keys(req.headers).reduce((filteredHeaders) => {
     const headers = filteredHeaders;
-    headers.request_id = req.headers['x-request-id'];
     headers.status = res.statusCode;
     headers.request = req.url;
     return headers;
