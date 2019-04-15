@@ -86,6 +86,7 @@ const serverLogger = (app) => {
   app.use(httpContext.middleware);
   app.use((req, res, next) => {
     httpContext.set('request_id', uuid());
+    console.log('I am here!!!!!!!!!!');
     return next();
   });
   app.use(expressLogger);
