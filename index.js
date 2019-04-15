@@ -8,6 +8,8 @@ const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
 const MESSAGE = Symbol.for('message');
 
+let requestId = null;
+
 const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)/);
 
 const formats = (info) => {
@@ -16,7 +18,7 @@ const formats = (info) => {
   }
   const string = JSON.stringify(info);
   const obj = JSON.parse(string);
-  const requestId = httpContext.get('request_id');
+  // const requestId = httpContext.get('request_id');
   console.log('THE REQUEST ID', requestId);
   const logstashOutput = {
     request_id: requestId,
@@ -86,8 +88,7 @@ const expressLogger = expressWinston.logger({
 const serverLogger = (app) => {
   app.use(httpContext.middleware);
   app.use((req, res, next) => {
-    httpContext.set('request_id', uuid());
-    const requestId = httpContext.get('request_id');
+    requestId = uuid();
     console.log('THE REQUEST ID', requestId);
     return next();
   });
