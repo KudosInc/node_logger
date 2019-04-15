@@ -95,5 +95,5 @@ const serverLogger = (app) => {
 module.exports = {
   serverLogger,
   log,
-  ApolloGraphqlLogger: ApolloGraphqlLogger,
+  ApolloGraphqlLogger,
 };
