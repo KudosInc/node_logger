@@ -4,6 +4,7 @@ const { createLogger, format, transports } = require('winston');
 const expressWinston = require('express-winston');
 const moment = require('moment');
 const httpContext = require('express-http-context');
+const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
 const MESSAGE = Symbol.for('message');
 
@@ -94,4 +95,5 @@ const serverLogger = (app) => {
 module.exports = {
   serverLogger,
   log,
+  ApolloGraphqlLogger: ApolloGraphqlLogger(log),
 };
