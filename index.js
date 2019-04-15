@@ -3,7 +3,6 @@ const uuid = require('uuid/v4');
 const { createLogger, format, transports } = require('winston');
 const expressWinston = require('express-winston');
 const moment = require('moment');
-const httpContext = require('express-http-context');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
 const MESSAGE = Symbol.for('message');
@@ -84,7 +83,6 @@ const expressLogger = expressWinston.logger({
 });
 
 const serverLogger = (app) => {
-  app.use(httpContext.middleware);
   app.use((req, res, next) => {
     requestId = uuid();
     return next();

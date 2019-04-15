@@ -24,7 +24,6 @@
   },
   "homepage": "https://github.com/KudosInc/node_logger#readme",
   "dependencies": {
-    "express-http-context": "^1.2.0",
     "express-winston": "^3.0.1",
     "graphql": "^14.2.1",
     "lodash": "^4.17.11",
