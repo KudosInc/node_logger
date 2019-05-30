@@ -5,7 +5,7 @@ module.exports = (logger) => {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart({ queryString, parsedQuery, variables }) {
       const query = queryString || print(parsedQuery);
-      logger.info(query.replace(/(\r\n|\n|\r)/gm, ' '));
+      logger.info(query.replace(/(\r\n|\n|\r|\s\s+)/gm, ' '));
       logger.info(variables);
     }
 
