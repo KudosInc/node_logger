@@ -3,9 +3,11 @@ const uuid = require('uuid/v4');
 const { createLogger, format, transports } = require('winston');
 const expressWinston = require('express-winston');
 const moment = require('moment');
-const httpContext = require('express-http-context');
+const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
 const MESSAGE = Symbol.for('message');
+
+let requestId = null;
 
 const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)/);
 
@@ -15,7 +17,6 @@ const formats = (info) => {
   }
   const string = JSON.stringify(info);
   const obj = JSON.parse(string);
-  const requestId = httpContext.get('request_id');
   const logstashOutput = {
     request_id: requestId,
     '@timestamp': moment().format(),
@@ -82,9 +83,8 @@ const expressLogger = expressWinston.logger({
 });
 
 const serverLogger = (app) => {
-  app.use(httpContext.middleware);
   app.use((req, res, next) => {
-    httpContext.set('request_id', uuid());
+    requestId = uuid();
     return next();
   });
   app.use(expressLogger);
@@ -94,4 +94,5 @@ const serverLogger = (app) => {
 module.exports = {
   serverLogger,
   log,
+  ApolloGraphqlLogger,
 };
