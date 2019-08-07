@@ -28,7 +28,7 @@ const formats = (info) => {
     '@timestamp': moment().format(),
     query,
     variables,
-    message: obj.message,
+    message,
     '@version': '1',
     severity: obj.level,
   };
