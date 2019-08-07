@@ -5,9 +5,11 @@ module.exports = (logger) => {
   class BasicLogging {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart({ queryString, parsedQuery, variables }) {
-      const query = queryString || print(parsedQuery);
-      logger.info(query.replace(extraSpacesNewLineRemovalRegexp, ' '));
-      logger.info(variables);
+      const query = (queryString || print(parsedQuery)).replace(extraSpacesNewLineRemovalRegexp, ' ');
+      logger.info({
+        query,
+        variables,
+      });
     }
 
     // eslint-disable-next-line class-methods-use-this

@@ -9,7 +9,7 @@ const MESSAGE = Symbol.for('message');
 
 let requestId = null;
 
-const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)/);
+const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
 
 const formats = (info) => {
   if (getOr('', 'meta.req.url', info).match(EXLUDE_FROM_LOG_PATTERN)) {
