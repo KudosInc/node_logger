@@ -1,4 +1,4 @@
-const { getOr, first } = require('lodash/fp');
+const { getOr } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const { createLogger, format, transports } = require('winston');
 const expressWinston = require('express-winston');
@@ -10,7 +10,6 @@ const MESSAGE = Symbol.for('message');
 let requestId = null;
 
 const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
-const QUERY_NAME_EXTRACTION_REGEXP = new RegExp(/query ([A-Za-z_]+)/);
 
 const formats = (info) => {
   if (getOr('', 'meta.req.url', info).match(EXLUDE_FROM_LOG_PATTERN)) {
@@ -18,25 +17,17 @@ const formats = (info) => {
   }
   const string = JSON.stringify(info);
   const obj = JSON.parse(string);
-  let { message } = obj;
-  const { query, variables } = message;
-  if (query) {
-    message = first(query.match(QUERY_NAME_EXTRACTION_REGEXP));
-  }
   const logstashOutput = {
     request_id: requestId,
     '@timestamp': moment().format(),
-    query,
-    variables,
-    message,
+    message: obj.message,
     '@version': '1',
     severity: obj.level,
   };
   const json = Object.assign(logstashOutput, info);
-  const jsonString = {
-    [MESSAGE]: JSON.stringify(json),
-  };
-  return Object.assign({}, jsonString, info);
+  const message = {};
+  message[MESSAGE] = JSON.stringify(json);
+  return Object.assign({}, message, info);
 };
 
 const winstonLogger = createLogger({
