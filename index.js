@@ -100,7 +100,7 @@ class Logger {
       level: LEVEL_NUMBER_MAP[this.response.severity],
     };
     console.log(JSON.stringify(this.response));
-    this.response = null;
+    this.response = {};
   }
 
   info(message) {
