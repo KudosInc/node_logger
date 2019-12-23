@@ -1,98 +1,127 @@
-const { getOr } = require('lodash/fp');
+const {
+  getOr, omitBy, isEmpty, get, first,
+} = require('lodash/fp');
 const uuid = require('uuid/v4');
-const { createLogger, format, transports } = require('winston');
-const expressWinston = require('express-winston');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
-const MESSAGE = Symbol.for('message');
-
-let requestId = null;
-
 const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
+const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
+const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+(?=\(|[ ]+\()/);
 
-const formats = (info) => {
-  if (getOr('', 'meta.req.url', info).match(EXLUDE_FROM_LOG_PATTERN)) {
-    return {};
-  }
-  const string = JSON.stringify(info);
-  const obj = JSON.parse(string);
-  const logstashOutput = {
-    request_id: requestId,
-    '@timestamp': moment().format(),
-    message: obj.message,
-    '@version': '1',
-    severity: obj.level,
-  };
-  const json = Object.assign(logstashOutput, info);
-  const message = {};
-  message[MESSAGE] = JSON.stringify(json);
-  return Object.assign({}, message, info);
+const LEVELS = {
+  emerg: 0,
+  alert: 1,
+  crit: 2,
+  error: 3,
+  warning: 4,
+  notice: 5,
+  info: 6,
+  debug: 7,
 };
 
-const winstonLogger = createLogger({
-  level: process.env.KUDOS_LOG_LEVEL,
-  format: format(formats)(),
-  transports: [
-    new transports.Console(),
-  ],
-  exitOnError: false,
-});
+const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
 
-const log = createLogger({
-  level: process.env.KUDOS_LOG_LEVEL,
-  format: format(formats)(),
-  transports: [
-    new transports.Console(),
-  ],
-  exitOnError: false,
-});
-
-function customRequestFilter(req, propName) {
-  if (propName === 'headers') {
-    return Object.keys(req.headers).reduce((filteredHeaders, key) => {
-      const headers = filteredHeaders;
-      if (key !== 'authorization') {
-        headers[key] = req.headers[key];
-      }
-      return headers;
-    }, {});
+class Logger {
+  constructor() {
+    this.req = null;
+    this.app = null;
+    this.handleRequest = this.handleRequest.bind(this);
   }
-  return req[propName];
-}
 
-function customResponseFilter() {
-  return undefined;
-}
+  refreshRequestId() {
+    this.requestId = uuid();
+  }
 
-function getPersonalizedFields(req, res) {
-  return Object.keys(req.headers).reduce((filteredHeaders) => {
-    const headers = filteredHeaders;
-    headers.status = res.statusCode;
-    headers.request = req.url;
-    headers.request_id = req.headers['x-request-id'];
-    return headers;
-  }, {});
-}
-
-const expressLogger = expressWinston.logger({
-  winstonInstance: winstonLogger,
-  requestFilter: customRequestFilter,
-  responseFilter: customResponseFilter,
-  dynamicMeta: getPersonalizedFields,
-});
-
-const serverLogger = (app) => {
-  app.use((req, res, next) => {
-    requestId = uuid();
+  handleRequest(req, res, next) {
+    this.req = req;
+    if (this.req.url.match(EXLUDE_FROM_LOG_PATTERN) || canLog(LEVELS.info)) {
+      return next();
+    }
+    this.refreshRequestId();
+    this.build({
+      message: `[${this.req.method}] ${this.req.path}`,
+      severity: LEVELS.info,
+    });
+    this.output();
     return next();
-  });
-  app.use(expressLogger);
-  return log;
-};
+  }
 
-module.exports = {
-  serverLogger,
-  log,
-  ApolloGraphqlLogger,
-};
+  build(object = {}) {
+    const response = {
+      ...object,
+      service: process.env.SERVICE_NAME,
+      '@timestamp': moment().format(),
+      '@version': 1 || process.env.APP_VERSION,
+      action: object.action || get('route.stack[0].name', this.req),
+      message: object.message,
+      ip: get('ip', this.req),
+      method: get('method', this.req), // GET, POST
+      organization_id: this.app ? this.app.get('organization_id') : null,
+      path: get('originalUrl', this.req),
+      request_id: get('headers[\'x-request-id\']', this.req) || this.requestId,
+      user_id: this.app ? this.app.get('user_id') : null,
+      severity: object.serverity,
+    };
+    this.response = { ...this.response, ...omitBy(isEmpty, response) };
+  }
+
+  actAsExpressMiddleWare(app) {
+    this.app = app;
+    this.app.use(this.handleRequest);
+  }
+
+  graphqlExtension() {
+    if (!this.extension) {
+      this.extension = new (ApolloGraphqlLogger(this))();
+    }
+    return this.extension;
+  }
+
+  output() {
+    console.log(JSON.stringify(this.response));
+  }
+
+  info(message) {
+    this.build({ message, serverity: LEVELS.info });
+    this.output();
+  }
+
+  debug(message) {
+    this.build({ message, serverity: LEVELS.debug });
+    this.output();
+  }
+
+  error(message) {
+    this.build({ message, serverity: LEVELS.error });
+    this.output();
+  }
+
+  graphqlRequest({ query, variables }) {
+    this.refreshRequestId();
+    const action = first(query.match(QUERY_ACTION_PATTERN));
+    this.build({
+      severity: LEVELS.info,
+      message: `GraphQL ${first(query.match(QUERY_MUTATION_PATTERN))} ${action}`,
+      action,
+      query,
+      variables,
+    });
+  }
+
+  graphqlResponse(response) {
+    if (response.errors) {
+      this.build({
+        severity: LEVELS.warning,
+        response,
+      });
+    } else if (canLog) {
+      this.build({
+        response,
+      });
+    }
+    this.output();
+  }
+}
+
+module.exports = (new Logger());

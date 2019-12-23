@@ -15,7 +15,6 @@
   "keywords": [
     "node",
     "logger",
-    "winston",
     "expressjs"
   ],
   "author": "talal7860",
@@ -30,7 +29,6 @@
     "lodash": "^4.17.13",
     "moment": "^2.23.0",
     "uuid": "^3.3.2",
-    "winston": "^3.1.0"
   },
   "devDependencies": {
     "eslint": "^5.12.0",
