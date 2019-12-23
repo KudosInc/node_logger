@@ -1,5 +1,5 @@
 const {
-  getOr, omitBy, isEmpty, get, first,
+  getOr, omitBy, isEmpty, get, first, isNumber, invert,
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
@@ -7,7 +7,7 @@ const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
 const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
-const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+(?=\(|[ ]+\()/);
+const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+/);
 
 const LEVELS = {
   emerg: 0,
@@ -20,6 +20,8 @@ const LEVELS = {
   debug: 7,
 };
 
+const LEVEL_NUMBER_MAP = invert(LEVELS);
+
 const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
 
 class Logger {
@@ -27,10 +29,20 @@ class Logger {
     this.req = null;
     this.app = null;
     this.handleRequest = this.handleRequest.bind(this);
+    this.response = {};
   }
 
   refreshRequestId() {
     this.requestId = uuid();
+  }
+
+  appendRequestInformation() {
+    this.request = {
+      ...this.request,
+      ip: get('ip', this.req),
+      method: get('method', this.req),
+      path: get('originalUrl', this.req),
+    };
   }
 
   handleRequest(req, res, next) {
@@ -43,6 +55,7 @@ class Logger {
       message: `[${this.req.method}] ${this.req.path}`,
       severity: LEVELS.info,
     });
+    this.appendRequestInformation();
     this.output();
     return next();
   }
@@ -55,15 +68,14 @@ class Logger {
       '@version': 1 || process.env.APP_VERSION,
       action: object.action || get('route.stack[0].name', this.req),
       message: object.message,
-      ip: get('ip', this.req),
-      method: get('method', this.req), // GET, POST
       organization_id: this.app ? this.app.get('organization_id') : null,
-      path: get('originalUrl', this.req),
       request_id: get('headers[\'x-request-id\']', this.req) || this.requestId,
       user_id: this.app ? this.app.get('user_id') : null,
-      severity: object.serverity,
     };
-    this.response = { ...this.response, ...omitBy(isEmpty, response) };
+    this.response = {
+      ...this.response,
+      ...omitBy(value => !isNumber(value) && isEmpty(value), response),
+    };
   }
 
   actAsExpressMiddleWare(app) {
@@ -79,21 +91,30 @@ class Logger {
   }
 
   output() {
+    if (!canLog(this.response.severity)) {
+      return;
+    }
+    this.response = {
+      ...this.response,
+      severity: LEVEL_NUMBER_MAP[this.response.severity],
+      level: LEVEL_NUMBER_MAP[this.response.severity],
+    };
     console.log(JSON.stringify(this.response));
+    this.response = null;
   }
 
   info(message) {
-    this.build({ message, serverity: LEVELS.info });
+    this.build({ message, severity: LEVELS.info });
     this.output();
   }
 
   debug(message) {
-    this.build({ message, serverity: LEVELS.debug });
+    this.build({ message, severity: LEVELS.debug });
     this.output();
   }
 
   error(message) {
-    this.build({ message, serverity: LEVELS.error });
+    this.build({ message, severity: LEVELS.error });
     this.output();
   }
 
@@ -113,13 +134,14 @@ class Logger {
     if (response.errors) {
       this.build({
         severity: LEVELS.warning,
-        response,
+        response: response.errors[0].message,
       });
     } else if (canLog) {
       this.build({
-        response,
+        response: response.data,
       });
     }
+    this.appendRequestInformation();
     this.output();
   }
 }
