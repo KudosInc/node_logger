@@ -65,7 +65,7 @@ class Logger {
       ...object,
       service: process.env.SERVICE_NAME,
       '@timestamp': moment().format(),
-      '@version': 1 || process.env.APP_VERSION,
+      '@version': process.env.APP_VERSION || 1,
       action: object.action || get('route.stack[0].name', this.req),
       message: object.message,
       organization_id: this.app ? this.app.get('organization_id') : null,
@@ -126,7 +126,7 @@ class Logger {
       message: `GraphQL ${first(query.match(QUERY_MUTATION_PATTERN))} ${action}`,
       action,
       query,
-      variables,
+      variables: canLog(LEVELS.debug) || process.env.OUTPUT_MUTATION_VARIABLES ? variables : {},
     });
   }
 
@@ -136,7 +136,7 @@ class Logger {
         severity: LEVELS.warning,
         response: response.errors[0].message,
       });
-    } else if (canLog) {
+    } else if (canLog(LEVELS.debug)) {
       this.build({
         response: response.data,
       });

@@ -13,16 +13,24 @@ To install this package run this command in the console of any node service:
 
 ## Usage
 To configure express to use the server logger require the `serverLogger` and use it as a function with express instance.
-```
-const { serverLogger } = require('node_logger');
+```javascript
+const logger = require('@kudosinc/node_logger');
 const app = express();
-const log = serverLogger(app);
+logger.actAsExpressMiddleWare(app);
 ```
-You can use the `log` to log errors or any other logs if you want to log errors some where in the code. Since we're using [Winston Logger](https://github.com/winstonjs/winston) we can use different types of logging supported by this logger. For example `log.error`, `log.debug`, `log.info` depending on your requirements.
+You can use the `log` to log errors or any other logs if you want to log errors some where in the code. Different type of methods supported by this logger are: `log.error`, `log.debug`, `log.info` depending on your requirements.
 
 To use the logger else where you can just include the `log` from the node_logger package and use it with the same methods; `log.error`, `log.debug` etc.
 
-```
-const { log } = require('node_logger');
+```javascript
+const logger = require('@kudosinc/node_logger');
 log.debug('some task complete!');
+```
+
+## Showing server version in logs
+
+To show server versions in the logs, this change is required, preferrably in the `bin/www`, where server starts
+
+```javascript
+process.env.APP_VERSION = packageJson.version;
 ```
