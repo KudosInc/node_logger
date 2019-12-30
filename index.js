@@ -6,7 +6,7 @@ const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 const UAParser = require('./lib/UAParser');
 
-const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
+const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
 const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+/);
 const EXCLUDE_MESSAGE_FROM_LOG_PATTERN = new RegExp(/jwt expired/);
