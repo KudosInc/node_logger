@@ -4,6 +4,7 @@ const {
 const uuid = require('uuid/v4');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
+const UAParser = require('./lib/UAParser');
 
 const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
@@ -24,6 +25,7 @@ const LEVELS = {
 const LEVEL_NUMBER_MAP = invert(LEVELS);
 
 const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
+const sanitize = map => omitBy(value => !isNumber(value) && isEmpty(value), map);
 
 class Logger {
   constructor() {
@@ -32,6 +34,7 @@ class Logger {
     this.handleRequest = this.handleRequest.bind(this);
     this.errorHandler = this.errorHandler.bind(this);
     this.response = {};
+    this.uaParser = new UAParser(null, null);
   }
 
   refreshRequestId() {
@@ -39,23 +42,28 @@ class Logger {
   }
 
   appendRequestInformation() {
-    this.request = {
-      ...this.request,
+    this.uaParser.setUA(this.req.headers['user-agent']);
+    this.build({
+      referer: get('referrer', this.req),
       ip: get('ip', this.req),
       method: get('method', this.req),
       path: get('originalUrl', this.req),
-    };
+      device: sanitize(this.uaParser.getDevice()),
+      browser: sanitize(this.uaParser.getBrowser()),
+      os: sanitize(this.uaParser.getOs()),
+    });
   }
 
   handleRequest(req, res, next) {
     this.req = req;
-    if (this.req.url.match(EXLUDE_URLS_FROM_LOG_PATTERN) || canLog(LEVELS.info)) {
+    if (this.req.url.match(EXLUDE_URLS_FROM_LOG_PATTERN) || !canLog(LEVELS.info)) {
       return next();
     }
     this.refreshRequestId();
     this.build({
       message: `[${this.req.method}] ${this.req.path}`,
       severity: LEVELS.info,
+      status: 'OK',
     });
     this.appendRequestInformation();
     this.output();
@@ -65,23 +73,28 @@ class Logger {
   build(object = {}) {
     const response = {
       ...object,
+      ...this.response,
       service: process.env.SERVICE_NAME,
-      '@timestamp': moment().format(),
-      '@version': process.env.APP_VERSION || 1,
+      timestamp: moment().format(),
+      version: process.env.APP_VERSION || 1,
       action: object.action || get('route.stack[0].name', this.req),
-      message: object.message,
       organization_id: this.app ? this.app.get('organization_id') : null,
       request_id: get('headers[\'x-request-id\']', this.req) || this.requestId,
       user_id: this.app ? this.app.get('user_id') : null,
     };
-    this.response = {
-      ...this.response,
-      ...omitBy(value => !isNumber(value) && isEmpty(value), response),
-    };
+    this.response = sanitize(response);
   }
 
   errorHandler(err, req, res, next) {
-    this.error(err.message);
+    this.req = req;
+    this.refreshRequestId();
+    this.build({
+      message: err.message,
+      severity: LEVELS.error,
+      status: 'Error',
+    });
+    this.appendRequestInformation();
+    this.output();
     return next();
   }
 

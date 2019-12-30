@@ -27,7 +27,19 @@ app.set('user_id', user_id);
 app.set('organization_id', organization_id);
 ```
 
-To use this logger with Apollo GraphQL server, add the following line in the configuration of the server
+To use this logger with Apollo GraphQL server, add the following line in the configuration of the server. To set this bit with `ApolloServer`, make following changes in the `context` block.
+
+```javascript
+context: async ({ req }) => {
+  const token = req.headers.authorization.replace('Bearer ', '');
+  const user = jsonwebtoken.verify(token, serverConfig.jwtKey);
+  if (!user) {
+    throw new AuthenticationError('Invalid authentication token');
+  }
+  app.set('user_id', user.id);
+  app.set('organization_id', user.org_id);
+},
+```
 
 ```javascript
 extensions: [() => logger.graphqlExtension()],
