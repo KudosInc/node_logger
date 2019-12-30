@@ -4,7 +4,6 @@ const {
 const uuid = require('uuid/v4');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
-const UAParser = require('./lib/UAParser');
 
 const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
@@ -34,7 +33,6 @@ class Logger {
     this.handleRequest = this.handleRequest.bind(this);
     this.errorHandler = this.errorHandler.bind(this);
     this.response = {};
-    this.uaParser = new UAParser(null, null);
   }
 
   refreshRequestId() {
@@ -42,15 +40,14 @@ class Logger {
   }
 
   appendRequestInformation() {
-    this.uaParser.setUA(this.req.headers['user-agent']);
     this.build({
-      referer: get('referrer', this.req),
-      ip: get('ip', this.req),
-      method: get('method', this.req),
-      path: get('originalUrl', this.req),
-      device: sanitize(this.uaParser.getDevice()),
-      browser: sanitize(this.uaParser.getBrowser()),
-      os: sanitize(this.uaParser.getOs()),
+      http: {
+        referer: get('referrer', this.req),
+        ip: get('ip', this.req),
+        method: get('method', this.req),
+        useragent: get('user-agent', this.req),
+        url: get('originalUrl', this.req),
+      },
     });
   }
 
