@@ -20,6 +20,13 @@ const app = express();
 logger.applyMiddleware(app);
 ```
 
+To get user and organization information, please use the following commands when the user and organization information is available.
+
+```javascript
+app.set('user_id', user_id);
+app.set('organization_id', organization_id);
+```
+
 To use this logger with Apollo GraphQL server, add the following line in the configuration of the server
 
 ```javascript
@@ -56,5 +63,7 @@ log.debug('some task complete!');
 To show server versions in the logs, this change is required, preferrably in the `bin/www`, where server starts
 
 ```javascript
+const packageJson = require('../package.json');
+
 process.env.APP_VERSION = packageJson.version;
 ```
