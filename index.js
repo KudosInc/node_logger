@@ -5,9 +5,10 @@ const uuid = require('uuid/v4');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
-const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
+const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
 const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+/);
+const EXCLUDE_MESSAGE_FROM_LOG_PATTERN = new RegExp(/jwt expired/);
 
 const LEVELS = {
   emerg: 0,
@@ -29,6 +30,7 @@ class Logger {
     this.req = null;
     this.app = null;
     this.handleRequest = this.handleRequest.bind(this);
+    this.errorHandler = this.errorHandler.bind(this);
     this.response = {};
   }
 
@@ -47,7 +49,7 @@ class Logger {
 
   handleRequest(req, res, next) {
     this.req = req;
-    if (this.req.url.match(EXLUDE_FROM_LOG_PATTERN) || canLog(LEVELS.info)) {
+    if (this.req.url.match(EXLUDE_URLS_FROM_LOG_PATTERN) || canLog(LEVELS.info)) {
       return next();
     }
     this.refreshRequestId();
@@ -78,9 +80,15 @@ class Logger {
     };
   }
 
-  actAsExpressMiddleWare(app) {
+  errorHandler(err, req, res, next) {
+    this.error(err.message);
+    return next();
+  }
+
+  applyMiddleware(app) {
     this.app = app;
     this.app.use(this.handleRequest);
+    this.app.use(this.errorHandler);
   }
 
   graphqlExtension() {
@@ -91,7 +99,11 @@ class Logger {
   }
 
   output() {
-    if (!canLog(this.response.severity)) {
+    if (
+      !canLog(this.response.severity)
+      || this.response.message.match(EXCLUDE_MESSAGE_FROM_LOG_PATTERN)
+    ) {
+      this.response = {};
       return;
     }
     this.response = {
@@ -99,6 +111,7 @@ class Logger {
       severity: LEVEL_NUMBER_MAP[this.response.severity],
       level: LEVEL_NUMBER_MAP[this.response.severity],
     };
+    // eslint-disable-next-line no-console
     console.log(JSON.stringify(this.response));
     this.response = {};
   }

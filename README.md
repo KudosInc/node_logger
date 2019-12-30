@@ -13,11 +13,35 @@ To install this package run this command in the console of any node service:
 
 ## Usage
 To configure express to use the server logger require the `serverLogger` and use it as a function with express instance.
+
 ```javascript
 const logger = require('@kudosinc/node_logger');
 const app = express();
-logger.actAsExpressMiddleWare(app);
+logger.applyMiddleware(app);
 ```
+
+To use this logger with Apollo GraphQL server, add the following line in the configuration of the server
+
+```javascript
+extensions: [() => logger.graphqlExtension()],
+```
+
+The final configuration might look something like this (copied from spaces)
+
+```javascript
+const server = new ApolloServer({
+  schema,
+  context: async ({ req }) => {
+    if (!user) {
+      throw new AuthenticationError('Invalid authentication token');
+    }
+  },
+  playground: false,
+  debug: process.env.KUDOS_LOG_LEVEL === 'debug',
+  extensions: [() => logger.graphqlExtension()],
+});
+```
+
 You can use the `log` to log errors or any other logs if you want to log errors some where in the code. Different type of methods supported by this logger are: `log.error`, `log.debug`, `log.info` depending on your requirements.
 
 To use the logger else where you can just include the `log` from the node_logger package and use it with the same methods; `log.error`, `log.debug` etc.
