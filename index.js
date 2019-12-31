@@ -167,17 +167,17 @@ class Logger {
     const duration = process.hrtime()[1] - this.requestStart;
     if (response.errors) {
       this.build({
-        severity: LEVELS.warning,
+        severity: LEVELS.error,
         response: response.errors[0].message,
       });
     } else if (canLog(LEVELS.debug)) {
       this.build({
         response: response.data,
-        duration,
+        duration: duration > 0 ? duration : 0,
       });
     } else {
       this.build({
-        duration,
+        duration: duration > 0 ? duration : 0,
       });
     }
     this.appendRequestInformation();
