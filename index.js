@@ -164,6 +164,7 @@ class Logger {
   }
 
   graphqlResponse(response) {
+    const duration = process.hrtime()[1] - this.requestStart;
     if (response.errors) {
       this.build({
         severity: LEVELS.warning,
@@ -172,7 +173,11 @@ class Logger {
     } else if (canLog(LEVELS.debug)) {
       this.build({
         response: response.data,
-        duration: process.hrtime()[1] - this.requestStart,
+        duration,
+      });
+    } else {
+      this.build({
+        duration,
       });
     }
     this.appendRequestInformation();
