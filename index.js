@@ -42,11 +42,11 @@ class Logger {
   appendRequestInformation() {
     this.build({
       http: {
-        referer: get('referrer', this.req),
-        ip: get('ip', this.req),
-        method: get('method', this.req),
-        useragent: get('user-agent', this.req),
-        url: get('originalUrl', this.req),
+        referer: this.req.headers['referer'],
+        ip: this.req.ip,
+        method: this.req.method,
+        useragent: this.req.headers['user-agent'],
+        url: this.req.originalUrl,
       },
     });
   }
