@@ -42,11 +42,15 @@ class Logger {
   appendRequestInformation() {
     this.build({
       http: {
-        referer: this.req.headers['referer'],
-        ip: this.req.ip,
+        referer: this.req.headers.referer,
         method: this.req.method,
         useragent: this.req.headers['user-agent'],
         url: this.req.originalUrl,
+      },
+      network: {
+        client: {
+          ip: this.req.ip,
+        },
       },
     });
   }
@@ -89,6 +93,10 @@ class Logger {
       message: err.message,
       severity: LEVELS.error,
       status: 'Error',
+      error: {
+        message: err.message,
+        stack: err.stack,
+      },
     });
     this.appendRequestInformation();
     this.output();
