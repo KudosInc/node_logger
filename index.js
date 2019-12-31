@@ -1,5 +1,5 @@
 const {
-  getOr, omitBy, isEmpty, get, first, isNumber, invert,
+  getOr, omitBy, isEmpty, get, first, isNumber, invert, now,
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
@@ -152,7 +152,7 @@ class Logger {
 
   graphqlRequest({ query, variables }) {
     this.refreshRequestId();
-    this.requestStartTime = moment().unix();
+    this.requestStartTime = now();
     const action = first(query.match(QUERY_ACTION_PATTERN));
     this.build({
       severity: LEVELS.info,
@@ -164,7 +164,7 @@ class Logger {
   }
 
   graphqlResponse(response) {
-    const duration = Math.abs(moment().unix() - this.requestStartTime);
+    const duration = Math.abs(now() - this.requestStartTime);
     if (response.errors) {
       this.build({
         severity: LEVELS.error,
