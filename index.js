@@ -33,6 +33,7 @@ class Logger {
     this.handleRequest = this.handleRequest.bind(this);
     this.errorHandler = this.errorHandler.bind(this);
     this.response = {};
+    this.requestStart = null;
   }
 
   refreshRequestId() {
@@ -151,6 +152,7 @@ class Logger {
 
   graphqlRequest({ query, variables }) {
     this.refreshRequestId();
+    [, this.requestStart] = process.hrtime();
     const action = first(query.match(QUERY_ACTION_PATTERN));
     this.build({
       severity: LEVELS.info,
@@ -170,6 +172,7 @@ class Logger {
     } else if (canLog(LEVELS.debug)) {
       this.build({
         response: response.data,
+        duration: process.hrtime()[1] - this.requestStart,
       });
     }
     this.appendRequestInformation();
