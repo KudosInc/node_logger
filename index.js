@@ -169,6 +169,7 @@ class Logger {
       this.build({
         severity: LEVELS.error,
         response: response.errors[0].message,
+        duration,
       });
     } else if (canLog(LEVELS.debug)) {
       this.build({
