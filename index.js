@@ -145,7 +145,8 @@ class Logger {
     this.output();
   }
 
-  error(message) {
+  error(e) {
+    const message = getOr(e, 'message', e);
     this.build({ message, severity: LEVELS.error });
     this.output();
   }
