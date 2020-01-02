@@ -1,98 +1,188 @@
-const { getOr } = require('lodash/fp');
+const {
+  getOr, omitBy, isEmpty, get, first, isNumber, invert, now,
+} = require('lodash/fp');
 const uuid = require('uuid/v4');
-const { createLogger, format, transports } = require('winston');
-const expressWinston = require('express-winston');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
-const MESSAGE = Symbol.for('message');
+const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)/);
+const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
+const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+/);
+const EXCLUDE_MESSAGE_FROM_LOG_PATTERN = new RegExp(/jwt expired/);
 
-let requestId = null;
-
-const EXLUDE_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)/);
-
-const formats = (info) => {
-  if (getOr('', 'meta.req.url', info).match(EXLUDE_FROM_LOG_PATTERN)) {
-    return {};
-  }
-  const string = JSON.stringify(info);
-  const obj = JSON.parse(string);
-  const logstashOutput = {
-    request_id: requestId,
-    '@timestamp': moment().format(),
-    message: obj.message,
-    '@version': '1',
-    severity: obj.level,
-  };
-  const json = Object.assign(logstashOutput, info);
-  const message = {};
-  message[MESSAGE] = JSON.stringify(json);
-  return Object.assign({}, message, info);
+const LEVELS = {
+  emerg: 0,
+  alert: 1,
+  crit: 2,
+  error: 3,
+  warning: 4,
+  notice: 5,
+  info: 6,
+  debug: 7,
 };
 
-const winstonLogger = createLogger({
-  level: process.env.KUDOS_LOG_LEVEL,
-  format: format(formats)(),
-  transports: [
-    new transports.Console(),
-  ],
-  exitOnError: false,
-});
+const LEVEL_NUMBER_MAP = invert(LEVELS);
 
-const log = createLogger({
-  level: process.env.KUDOS_LOG_LEVEL,
-  format: format(formats)(),
-  transports: [
-    new transports.Console(),
-  ],
-  exitOnError: false,
-});
+const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
+const sanitize = map => omitBy(value => !isNumber(value) && isEmpty(value), map);
 
-function customRequestFilter(req, propName) {
-  if (propName === 'headers') {
-    return Object.keys(req.headers).reduce((filteredHeaders, key) => {
-      const headers = filteredHeaders;
-      if (key !== 'authorization') {
-        headers[key] = req.headers[key];
-      }
-      return headers;
-    }, {});
+class Logger {
+  constructor() {
+    this.req = null;
+    this.app = null;
+    this.handleRequest = this.handleRequest.bind(this);
+    this.errorHandler = this.errorHandler.bind(this);
+    this.response = {};
+    this.requestStart = null;
   }
-  return req[propName];
-}
 
-function customResponseFilter() {
-  return undefined;
-}
+  refreshRequestId() {
+    this.requestId = uuid();
+  }
 
-function getPersonalizedFields(req, res) {
-  return Object.keys(req.headers).reduce((filteredHeaders) => {
-    const headers = filteredHeaders;
-    headers.status = res.statusCode;
-    headers.request = req.url;
-    headers.request_id = req.headers['x-request-id'];
-    return headers;
-  }, {});
-}
+  appendRequestInformation() {
+    this.build({
+      http: {
+        referer: this.req.headers.referer,
+        method: this.req.method,
+        useragent: this.req.headers['user-agent'],
+        url: this.req.originalUrl,
+      },
+      network: {
+        client: {
+          ip: this.req.ip,
+        },
+      },
+    });
+  }
 
-const expressLogger = expressWinston.logger({
-  winstonInstance: winstonLogger,
-  requestFilter: customRequestFilter,
-  responseFilter: customResponseFilter,
-  dynamicMeta: getPersonalizedFields,
-});
-
-const serverLogger = (app) => {
-  app.use((req, res, next) => {
-    requestId = uuid();
+  handleRequest(req, res, next) {
+    this.req = req;
+    if (this.req.url.match(EXLUDE_URLS_FROM_LOG_PATTERN) || !canLog(LEVELS.info)) {
+      return next();
+    }
+    this.refreshRequestId();
+    this.build({
+      message: `[${this.req.method}] ${this.req.path}`,
+      severity: LEVELS.info,
+      status: 'OK',
+    });
+    this.appendRequestInformation();
+    this.output();
     return next();
-  });
-  app.use(expressLogger);
-  return log;
-};
+  }
 
-module.exports = {
-  serverLogger,
-  log,
-  ApolloGraphqlLogger,
-};
+  build(object = {}) {
+    const response = {
+      ...object,
+      ...this.response,
+      service: process.env.SERVICE_NAME,
+      timestamp: moment().format(),
+      version: process.env.APP_VERSION || 1,
+      action: object.action || get('route.stack[0].name', this.req),
+      organization_id: this.app ? this.app.get('organization_id') : null,
+      request_id: get('headers[\'x-request-id\']', this.req) || this.requestId,
+      user_id: this.app ? this.app.get('user_id') : null,
+    };
+    this.response = sanitize(response);
+  }
+
+  errorHandler(err, req, res, next) {
+    this.req = req;
+    this.refreshRequestId();
+    this.build({
+      message: err.message,
+      severity: LEVELS.error,
+      status: 'Error',
+      error: {
+        message: err.message,
+        stack: err.stack,
+      },
+    });
+    this.appendRequestInformation();
+    this.output();
+    return next();
+  }
+
+  applyMiddleware(app) {
+    this.app = app;
+    this.app.use(this.handleRequest);
+    this.app.use(this.errorHandler);
+  }
+
+  graphqlExtension() {
+    if (!this.extension) {
+      this.extension = new (ApolloGraphqlLogger(this))();
+    }
+    return this.extension;
+  }
+
+  output() {
+    if (
+      !canLog(this.response.severity)
+      || this.response.message.match(EXCLUDE_MESSAGE_FROM_LOG_PATTERN)
+    ) {
+      this.response = {};
+      return;
+    }
+    this.response = {
+      ...this.response,
+      severity: LEVEL_NUMBER_MAP[this.response.severity],
+      level: LEVEL_NUMBER_MAP[this.response.severity],
+    };
+    // eslint-disable-next-line no-console
+    console.log(JSON.stringify(this.response));
+    this.response = {};
+  }
+
+  info(message) {
+    this.build({ message, severity: LEVELS.info });
+    this.output();
+  }
+
+  debug(message) {
+    this.build({ message, severity: LEVELS.debug });
+    this.output();
+  }
+
+  error(message) {
+    this.build({ message, severity: LEVELS.error });
+    this.output();
+  }
+
+  graphqlRequest({ query, variables }) {
+    this.refreshRequestId();
+    this.requestStartTime = now();
+    const action = first(query.match(QUERY_ACTION_PATTERN));
+    this.build({
+      severity: LEVELS.info,
+      message: `GraphQL ${first(query.match(QUERY_MUTATION_PATTERN))} ${action}`,
+      action,
+      query,
+      variables: canLog(LEVELS.debug) || process.env.OUTPUT_MUTATION_VARIABLES ? variables : {},
+    });
+  }
+
+  graphqlResponse(response) {
+    const duration = Math.abs(now() - this.requestStartTime);
+    if (response.errors) {
+      this.build({
+        severity: LEVELS.error,
+        response: response.errors[0].message,
+      });
+    } else if (canLog(LEVELS.debug)) {
+      this.build({
+        response: response.data,
+        duration,
+      });
+    } else {
+      this.build({
+        duration,
+      });
+    }
+    this.appendRequestInformation();
+    this.output();
+  }
+}
+
+module.exports = (new Logger());
