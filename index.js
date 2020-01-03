@@ -1,5 +1,13 @@
 const {
-  getOr, omitBy, isEmpty, get, first, isNumber, invert, now,
+  getOr,
+  omitBy,
+  isEmpty,
+  get,
+  first,
+  isNumber,
+  invert,
+  now,
+  omit,
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
@@ -83,8 +91,8 @@ class Logger {
 
   build(object = {}) {
     const response = {
-      ...object,
       ...this.response,
+      ...object,
       service: process.env.SERVICE_NAME,
       timestamp: moment().format(),
       version: process.env.APP_VERSION || 1,
@@ -184,9 +192,15 @@ class Logger {
   graphqlResponse(response) {
     const duration = Math.abs(now() - this.requestStartTime);
     if (response.errors) {
+      const [error] = response.errors;
+      const errorExtensions = getOr({}, 'extensions.exception.stacktrace', error);
       this.build({
         severity: LEVELS.error,
-        response: response.errors[0].message,
+        error: {
+          message: error.message,
+          stack: errorExtensions.stacktrace,
+          ...omit('stacktrace', errorExtensions),
+        },
         duration,
       });
     } else if (canLog(LEVELS.debug)) {
