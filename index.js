@@ -154,9 +154,17 @@ class Logger {
     this.output();
   }
 
-  error(e) {
+  error(e, extraInfo = {}) {
     const message = getOr(e, 'message', e);
-    this.build({ message, severity: LEVELS.error });
+    this.build({
+      message,
+      severity: LEVELS.error,
+      error: {
+        message,
+        stack: get('stack', e),
+        ...extraInfo,
+      },
+    });
     this.output();
   }
 
