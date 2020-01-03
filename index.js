@@ -26,6 +26,8 @@ const LEVEL_NUMBER_MAP = invert(LEVELS);
 const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
 const sanitize = map => omitBy(value => !isNumber(value) && isEmpty(value), map);
 
+let loggerInstance = null;
+
 class Logger {
   constructor() {
     this.req = null;
@@ -34,6 +36,13 @@ class Logger {
     this.errorHandler = this.errorHandler.bind(this);
     this.response = {};
     this.requestStart = null;
+  }
+
+  static new() {
+    if (!loggerInstance) {
+      loggerInstance = new Logger();
+    }
+    return loggerInstance;
   }
 
   refreshRequestId() {
@@ -187,4 +196,4 @@ class Logger {
   }
 }
 
-module.exports = (new Logger());
+module.exports = Logger.new();
