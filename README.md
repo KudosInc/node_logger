@@ -3,9 +3,20 @@ Logging service for node based micro-services
 
 ## Setup
 
-To install this package run this command in the console of any node service: 
+Add `.npmrc` in your repo with the following values
+
+```
+registry=https://npm.pkg.github.com/KudosInc
+//npm.pkg.github.com/:_authToken=***
+```
+
+The auth token is supposed to be a secret and should be added in .gitattributes file as well.
+
+Then to install this package run this command in the console of any node service:
 
 `npm i @kudosinc/node_logger`
+
+Don't forget to add the line to `COPY` .npmrc before running `npm install`.
 
 ## Requirements
 - ExpressJs installed in case you want to use the server logger
@@ -79,3 +90,4 @@ const packageJson = require('../package.json');
 
 process.env.APP_VERSION = packageJson.version;
 ```
+
