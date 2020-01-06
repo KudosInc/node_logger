@@ -1,5 +1,13 @@
 const {
-  getOr, omitBy, isEmpty, get, first, isNumber, invert, now,
+  getOr,
+  omitBy,
+  isEmpty,
+  get,
+  first,
+  isNumber,
+  invert,
+  now,
+  omit,
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
@@ -26,6 +34,8 @@ const LEVEL_NUMBER_MAP = invert(LEVELS);
 const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
 const sanitize = map => omitBy(value => !isNumber(value) && isEmpty(value), map);
 
+let loggerInstance = null;
+
 class Logger {
   constructor() {
     this.req = null;
@@ -34,6 +44,13 @@ class Logger {
     this.errorHandler = this.errorHandler.bind(this);
     this.response = {};
     this.requestStart = null;
+  }
+
+  static new() {
+    if (!loggerInstance) {
+      loggerInstance = new Logger();
+    }
+    return loggerInstance;
   }
 
   refreshRequestId() {
@@ -74,8 +91,8 @@ class Logger {
 
   build(object = {}) {
     const response = {
-      ...object,
       ...this.response,
+      ...object,
       service: process.env.SERVICE_NAME,
       timestamp: moment().format(),
       version: process.env.APP_VERSION || 1,
@@ -145,9 +162,17 @@ class Logger {
     this.output();
   }
 
-  error(e) {
+  error(e, extraInfo = {}) {
     const message = getOr(e, 'message', e);
-    this.build({ message, severity: LEVELS.error });
+    this.build({
+      message,
+      severity: LEVELS.error,
+      error: {
+        message,
+        stack: get('stack', e),
+        ...extraInfo,
+      },
+    });
     this.output();
   }
 
@@ -167,9 +192,15 @@ class Logger {
   graphqlResponse(response) {
     const duration = Math.abs(now() - this.requestStartTime);
     if (response.errors) {
+      const [error] = response.errors;
+      const errorExtensions = getOr({}, 'extensions.exception.stacktrace', error);
       this.build({
         severity: LEVELS.error,
-        response: response.errors[0].message,
+        error: {
+          message: error.message,
+          stack: errorExtensions.stacktrace,
+          ...omit('stacktrace', errorExtensions),
+        },
         duration,
       });
     } else if (canLog(LEVELS.debug)) {
@@ -187,4 +218,4 @@ class Logger {
   }
 }
 
-module.exports = (new Logger());
+module.exports = Logger.new();
