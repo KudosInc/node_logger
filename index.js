@@ -108,7 +108,7 @@ class Logger {
     this.req = req;
     this.refreshRequestId();
     this.build({
-      message: err.message,
+      message: `[${this.req.method}] ${this.req.path}`,
       severity: LEVELS.error,
       status: 'Error',
       error: {
@@ -162,13 +162,12 @@ class Logger {
     this.output();
   }
 
-  error(e, extraInfo = {}) {
-    const message = getOr(e, 'message', e);
+  error(message, e, extraInfo = {}) {
     this.build({
       message,
       severity: LEVELS.error,
       error: {
-        message,
+        message: getOr(message, 'message', e),
         stack: get('stack', e),
         ...extraInfo,
       },
