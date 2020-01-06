@@ -13,7 +13,7 @@ const uuid = require('uuid/v4');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 
-const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)/);
+const EXLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)|(is_tango_api_up)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
 const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+/);
 const EXCLUDE_MESSAGE_FROM_LOG_PATTERN = new RegExp(/jwt expired/);
