@@ -16,7 +16,7 @@ Then to install this package run this command in the console of any node service
 
 `npm i @kudosinc/node_logger`
 
-Don't forget to add the line to `COPY` .npmrc before running `npm install`.
+Don't forget to add the line to `COPY` .npmrc in Dockerfile before running `npm install`.
 
 ## Requirements
 - ExpressJs installed in case you want to use the server logger
