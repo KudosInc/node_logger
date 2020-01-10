@@ -152,18 +152,18 @@ class Logger {
     this.response = {};
   }
 
-  info(message) {
-    this.build({ message, severity: LEVELS.info });
+  info(message, extraInfo = {}) {
+    this.build({ message, severity: LEVELS.info, ...extraInfo });
     this.output();
   }
 
-  debug(message) {
-    this.build({ message, severity: LEVELS.debug });
+  debug(message, extraInfo = {}) {
+    this.build({ message, severity: LEVELS.debug, ...extraInfo });
     this.output();
   }
 
-  warn(message) {
-    this.build({ message, severity: LEVELS.warning });
+  warn(message, extraInfo) {
+    this.build({ message, severity: LEVELS.warning, ...extraInfo });
     this.output();
   }
 
