@@ -162,6 +162,11 @@ class Logger {
     this.output();
   }
 
+  warn(message) {
+    this.build({ message, severity: LEVELS.warning });
+    this.output();
+  }
+
   error(message, e, extraInfo = {}) {
     this.build({
       message,
