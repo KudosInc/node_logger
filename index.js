@@ -44,6 +44,11 @@ class Logger {
     this.errorHandler = this.errorHandler.bind(this);
     this.response = {};
     this.requestStart = null;
+    this.error = this.error.bind(this);
+    this.info = this.info.bind(this);
+    this.debug = this.debug.bind(this);
+    this.warn = this.warn.bind(this);
+    this.build = this.build.bind(this);
   }
 
   static new() {
