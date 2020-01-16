@@ -35,7 +35,7 @@ const LEVEL_NUMBER_MAP = invert(LEVELS);
 const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
 const sanitize = map => omitBy(value => !isNumber(value) && isEmpty(value), map);
 
-let loggerInstance = null;
+let requestId = uuid();
 
 class Logger {
   constructor() {
@@ -50,17 +50,16 @@ class Logger {
     this.debug = this.debug.bind(this);
     this.warn = this.warn.bind(this);
     this.build = this.build.bind(this);
+    this.requestId = requestId;
   }
 
   static new() {
-    if (!loggerInstance) {
-      loggerInstance = new Logger();
-    }
-    return loggerInstance;
+    return new Logger();
   }
 
-  refreshRequestId() {
-    this.requestId = uuid();
+  static refreshRequestId() {
+    requestId = uuid();
+    this.requestId = requestId;
   }
 
   appendRequestInformation() {
@@ -84,7 +83,7 @@ class Logger {
     if (this.req.url.match(EXCLUDE_URLS_FROM_LOG_PATTERN) || !canLog(LEVELS.info)) {
       return next();
     }
-    this.refreshRequestId();
+    Logger.refreshRequestId();
     this.build({
       message: `[${this.req.method}] ${this.req.path}`,
       severity: LEVELS.info,
@@ -118,7 +117,7 @@ class Logger {
 
   errorHandler(err, req, res, next) {
     this.req = req;
-    this.refreshRequestId();
+    Logger.refreshRequestId();
     this.build({
       message: `[${this.req.method}] ${this.req.path}`,
       severity: LEVELS.error,
@@ -193,7 +192,7 @@ class Logger {
   }
 
   graphqlRequest({ query, variables }) {
-    this.refreshRequestId();
+    Logger.refreshRequestId();
     this.requestStartTime = now();
     const action = first(query.match(QUERY_ACTION_PATTERN));
     this.build({
@@ -231,6 +230,7 @@ class Logger {
     }
     this.appendRequestInformation();
     this.output();
+    requestId = null;
   }
 }
 
