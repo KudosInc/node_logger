@@ -12,6 +12,7 @@ const {
 const uuid = require('uuid/v4');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
+const circularReplacer = require('./CircularReplacer');
 
 const EXCLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)|(is_tango_api_up)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
@@ -95,6 +96,12 @@ class Logger {
   }
 
   build(object = {}) {
+    if (!canLog(object.severity)) {
+      this.response = {
+        severity: object.severity,
+      };
+      return;
+    }
     const response = {
       ...this.response,
       ...object,
@@ -153,7 +160,7 @@ class Logger {
       level: LEVEL_NUMBER_MAP[this.response.severity],
     };
     // eslint-disable-next-line no-console
-    console.log(JSON.stringify(this.response));
+    console.log(JSON.stringify(this.response, circularReplacer()));
     this.response = {};
   }
 
