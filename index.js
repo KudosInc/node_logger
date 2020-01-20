@@ -153,17 +153,17 @@ class Logger {
   }
 
   info(message, extraInfo = {}) {
-    this.build({ message, severity: LEVELS.info, ...extraInfo });
+    this.build({ ...extraInfo, severity: LEVELS.info, message });
     this.output();
   }
 
   debug(message, extraInfo = {}) {
-    this.build({ message, severity: LEVELS.debug, ...extraInfo });
+    this.build({ ...extraInfo, severity: LEVELS.debug, message });
     this.output();
   }
 
-  warn(message, extraInfo) {
-    this.build({ message, severity: LEVELS.warning, ...extraInfo });
+  warn(message, extraInfo = {}) {
+    this.build({ ...extraInfo, severity: LEVELS.warning, message });
     this.output();
   }
 
@@ -172,9 +172,9 @@ class Logger {
       message,
       severity: LEVELS.error,
       error: {
+        ...extraInfo,
         message: getOr(message, 'message', e),
         stack: get('stack', e),
-        ...extraInfo,
       },
     });
     this.output();
