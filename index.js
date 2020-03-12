@@ -199,6 +199,7 @@ class Logger {
       const [error] = response.errors;
       const errorExtensions = getOr({}, 'extensions.exception.stacktrace', error);
       this.build({
+        message: error.message,
         severity: LEVELS.error,
         error: {
           message: error.message,
