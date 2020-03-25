@@ -25,6 +25,9 @@
     "url": "https://github.com/KudosInc/node_logger/issues"
   },
   "homepage": "https://github.com/KudosInc/node_logger#readme",
+  "peerDependencies": {
+    "newrelic": "^6.5.0"
+  },
   "dependencies": {
     "graphql": "^14.2.1",
     "lodash": "^4.17.13",
