@@ -1,22 +1,11 @@
 # Node Logger
-Logging service for node based micro-services
+Logging service for node based micro-services and configures New Relic.
 
 ## Setup
-
-Add `.npmrc` in your repo with the following values
-
-```
-registry=https://npm.pkg.github.com/KudosInc
-//npm.pkg.github.com/:_authToken=***
-```
-
-The auth token is supposed to be a secret and should be added in .gitattributes file as well.
 
 Then to install this package run this command in the console of any node service:
 
 `npm i @kudosinc/node_logger`
-
-Don't forget to add the line to `COPY` .npmrc in Dockerfile before running `npm install`.
 
 ## Requirements
 - ExpressJs installed in case you want to use the server logger
@@ -53,7 +42,7 @@ context: async ({ req }) => {
 ```
 
 ```javascript
-extensions: [() => logger.graphqlExtension()],
+extensions: logger.allExpressExtensions(),
 ```
 
 The final configuration might look something like this (copied from spaces)
@@ -68,7 +57,7 @@ const server = new ApolloServer({
   },
   playground: false,
   debug: process.env.KUDOS_LOG_LEVEL === 'debug',
-  extensions: [() => logger.graphqlExtension()],
+  extensions: logger.allExpressExtensions(),
 });
 ```
 
@@ -91,3 +80,12 @@ const packageJson = require('../package.json');
 process.env.APP_VERSION = packageJson.version;
 ```
 
+# Configuring New Relic
+
+Add `require('newrelic');` to `config/default.js`
+
+Also need to copy the New Relic default configuration file to the root directory.
+
+```bash
+cp ./node_modules/newrelic/newrelic.js .
+```

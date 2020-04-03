@@ -150,8 +150,8 @@ class Logger {
 
   allExpressExtensions() {
     return [
-      this.graphqlExtension(),
-      this.newrelicExtension()
+      () => this.graphqlExtension(),
+      () => this.newrelicExtension()
     ];
   }
 
