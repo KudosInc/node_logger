@@ -1,6 +1,6 @@
 {
   "name": "@kudosinc/node_logger",
-  "version": "2.0.8",
+  "version": "3.0.0",
   "description": "A logger for node services",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -25,6 +25,9 @@
     "url": "https://github.com/KudosInc/node_logger/issues"
   },
   "homepage": "https://github.com/KudosInc/node_logger#readme",
+  "peerDependencies": {
+    "newrelic": "^6.5.0"
+  },
   "dependencies": {
     "graphql": "^14.2.1",
     "lodash": "^4.17.13",

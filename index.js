@@ -12,6 +12,10 @@ const {
 const uuid = require('uuid/v4');
 const moment = require('moment');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
+// See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
+// for an example logger
+const newrelic = require('newrelic');
+const { newrelicPlugin } = require('./newrelicPlugin');
 
 const EXCLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)|(is_tango_api_up)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
@@ -58,6 +62,8 @@ class Logger {
   }
 
   appendRequestInformation() {
+    const metadata = newrelic.getLinkingMetadata(true)
+
     this.build({
       http: {
         referer: this.req.headers.referer,
@@ -70,6 +76,7 @@ class Logger {
           ip: this.req.ip,
         },
       },
+      ...metadata,
     });
   }
 
@@ -132,6 +139,20 @@ class Logger {
       this.extension = new (ApolloGraphqlLogger(this))();
     }
     return this.extension;
+  }
+
+  newrelicExtension() {
+    if (!this.newrelicExtension) {
+      this.newrelicExtension = new (newrelicPlugin())();
+    }
+    return this.newrelicExtension;
+  }
+
+  allExpressExtensions() {
+    return [
+      () => this.graphqlExtension(),
+      () => this.newrelicExtension()
+    ];
   }
 
   output() {
