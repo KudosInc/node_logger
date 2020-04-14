@@ -15,7 +15,7 @@ const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 // See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
 // for an example logger
 const newrelic = require('newrelic');
-const { newrelicPlugin } = require('./newrelicPlugin');
+const NewrelicPlugin = require('./newrelicPlugin');
 
 const EXCLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)|(is_tango_api_up)/);
 const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
@@ -142,10 +142,10 @@ class Logger {
   }
 
   newrelicExtension() {
-    if (!this.newrelicExtension) {
-      this.newrelicExtension = new (newrelicPlugin())();
+    if (!this._newrelicExtension) {
+      this._newrelicExtension = new (NewrelicPlugin())();
     }
-    return this.newrelicExtension;
+    return this._newrelicExtension;
   }
 
   allExpressExtensions() {
