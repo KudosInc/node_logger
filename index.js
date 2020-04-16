@@ -3,7 +3,6 @@ const {
   omitBy,
   isEmpty,
   get,
-  first,
   isNumber,
   invert,
   now,
@@ -11,15 +10,15 @@ const {
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
+const helper = require('./helper');
+/* eslint-disable import/no-unresolved */
+const newrelic = require('newrelic');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 // See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
 // for an example logger
-const newrelic = require('newrelic');
 const NewrelicPlugin = require('./newrelicPlugin');
 
 const EXCLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)|(is_tango_api_up)/);
-const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
-const QUERY_ACTION_PATTERN = new RegExp(/(?<=\{[ ]+)[A-Za-z0-9]+/);
 const EXCLUDE_MESSAGE_FROM_LOG_PATTERN = new RegExp(/jwt expired/);
 
 const LEVELS = {
@@ -62,7 +61,7 @@ class Logger {
   }
 
   appendRequestInformation() {
-    const metadata = newrelic.getLinkingMetadata(true)
+    const metadata = newrelic.getLinkingMetadata(true);
 
     this.build({
       http: {
@@ -151,7 +150,7 @@ class Logger {
   allExpressExtensions() {
     return [
       () => this.graphqlExtension(),
-      () => this.newrelicExtension()
+      () => this.newrelicExtension(),
     ];
   }
 
@@ -204,10 +203,10 @@ class Logger {
   graphqlRequest({ query, variables }) {
     this.refreshRequestId();
     this.requestStartTime = now();
-    const action = first(query.match(QUERY_ACTION_PATTERN));
+    const { action, gqlVerb } = helper.parseGraphQLQuery(query);
     this.build({
       severity: LEVELS.info,
-      message: `GraphQL ${first(query.match(QUERY_MUTATION_PATTERN))} ${action}`,
+      message: `GraphQL ${gqlVerb} ${action}`,
       action,
       query,
       variables: canLog(LEVELS.debug) || process.env.OUTPUT_MUTATION_VARIABLES ? variables : {},
