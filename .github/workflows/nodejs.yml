@@ -29,4 +29,4 @@ jobs:
       env:
         CI: true
     - run: npm run lint
-    - run: npm audit
+    - run: npm audit --registry https://registry.npmjs.org

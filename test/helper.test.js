@@ -1,6 +1,5 @@
 const helper = require('../helper');
 
-
 describe('parsing a query string', () => {
   const simpleQuery = `query user($userId: Int!) {
         user(id: $userId) {

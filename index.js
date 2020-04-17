@@ -10,9 +10,9 @@ const {
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
-const helper = require('./helper');
 /* eslint-disable import/no-unresolved */
 const newrelic = require('newrelic');
+const helper = require('./helper');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 // See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
 // for an example logger
