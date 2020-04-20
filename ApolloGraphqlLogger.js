@@ -1,12 +1,10 @@
-const { print } = require('graphql');
-
-const extraSpacesNewLineRemovalRegexp = new RegExp(/(\r\n|\n|\r|\s\s+)/gm);
+const helper = require('./helper');
 
 module.exports = (logger) => {
   class BasicLogging {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart({ queryString, parsedQuery, variables }) {
-      const query = (queryString || print(parsedQuery)).replace(extraSpacesNewLineRemovalRegexp, ' ');
+      const { query } = helper.parseGraphQLQuery(queryString, parsedQuery);
       logger.graphqlRequest({
         query,
         variables,

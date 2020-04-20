@@ -8,6 +8,11 @@
     "ecmaVersion": 2018,
     "sourceType": "module"
   },
+  "globals": {
+    "test": true,
+    "describe": true,
+    "expect": true
+  },
   "rules": {
     "no-unused-vars": [
       "error", {
@@ -30,6 +35,10 @@
     "semi": [
       "error",
       "always"
+    ],
+    "no-underscore-dangle": [
+      "off",
+      "ignore"
     ]
   }
 }
