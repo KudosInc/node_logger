@@ -142,7 +142,7 @@ class Logger {
 
   newrelicExtension() {
     if (!this._newrelicExtension) {
-      this._newrelicExtension = new (NewrelicPlugin())();
+      this._newrelicExtension = new NewrelicPlugin();
     }
     return this._newrelicExtension;
   }

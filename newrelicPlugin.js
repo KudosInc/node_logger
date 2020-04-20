@@ -2,31 +2,28 @@
 const newrelic = require('newrelic');
 const helper = require('./helper');
 
-module.exports = () => {
-  class NewRelicPlugin {
-    // eslint-disable-next-line class-methods-use-this
-    requestDidStart({
-      queryString, parsedQuery, context, operationName,
-    }) {
-      const { query, action, gqlVerb } = helper.parseGraphQLQuery(queryString, parsedQuery);
+module.exports = class NewRelicPlugin {
+  // eslint-disable-next-line class-methods-use-this
+  requestDidStart({
+    queryString, parsedQuery, context, operationName,
+  }) {
+    const { query, action, gqlVerb } = helper.parseGraphQLQuery(queryString, parsedQuery);
 
-      newrelic.setTransactionName(`${gqlVerb} ${action}`);
+    newrelic.setTransactionName(`${gqlVerb} ${action}`);
 
-      const attributes = {
-        operationName,
-        query,
-      };
-      if (context.user) {
-        attributes.organization_id = context.user.org_id;
-        attributes.user_id = context.user.id;
-      }
-      newrelic.addCustomAttributes(attributes);
+    const attributes = {
+      operationName,
+      query,
+    };
+    if (context.user) {
+      attributes.organization_id = context.user.org_id;
+      attributes.user_id = context.user.id;
     }
-
-    // eslint-disable-next-line class-methods-use-this
-    didEncounterErrors(rc) {
-      newrelic.noticeError(rc[0]);
-    }
+    newrelic.addCustomAttributes(attributes);
   }
-  return NewRelicPlugin;
+
+  // eslint-disable-next-line class-methods-use-this
+  didEncounterErrors(rc) {
+    newrelic.noticeError(rc[0]);
+  }
 };
