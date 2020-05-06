@@ -157,6 +157,7 @@ class Logger {
   output() {
     if (
       !canLog(this.response.severity)
+      || isEmpty(this.response.message)
       || this.response.message.match(EXCLUDE_MESSAGE_FROM_LOG_PATTERN)
     ) {
       this.response = {};
