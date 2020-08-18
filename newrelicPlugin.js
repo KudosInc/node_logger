@@ -2,6 +2,8 @@
 const newrelic = require('newrelic');
 const helper = require('./helper');
 
+const EXCLUDE_ERROR_FROM_NEW_RELIC = new RegExp(/Invalid email or password/);
+
 module.exports = class NewRelicPlugin {
   // eslint-disable-next-line class-methods-use-this
   requestDidStart({
@@ -24,6 +26,10 @@ module.exports = class NewRelicPlugin {
 
   // eslint-disable-next-line class-methods-use-this
   didEncounterErrors(rc) {
+    if(rc[0]['message'].match(EXCLUDE_ERROR_FROM_NEW_RELIC)) {
+      return;
+    }
+      
     newrelic.noticeError(rc[0]);
   }
 };
