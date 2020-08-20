@@ -1,6 +1,9 @@
 /* eslint-disable import/no-unresolved */
 const newrelic = require('newrelic');
 const helper = require('./helper');
+const { getOr } = require('lodash/fp');
+
+const EXCLUDE_ERROR_FROM_NEW_RELIC = new RegExp(getOr(null,process.env.IGNORED_ERRORS));
 
 module.exports = class NewRelicPlugin {
   // eslint-disable-next-line class-methods-use-this
@@ -24,6 +27,10 @@ module.exports = class NewRelicPlugin {
 
   // eslint-disable-next-line class-methods-use-this
   didEncounterErrors(rc) {
+    if(rc[0]['message'].match(EXCLUDE_ERROR_FROM_NEW_RELIC)) {
+      return;
+    }
+      
     newrelic.noticeError(rc[0]);
   }
 };
