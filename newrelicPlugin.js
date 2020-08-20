@@ -3,7 +3,7 @@ const newrelic = require('newrelic');
 const { getOr } = require('lodash/fp');
 const helper = require('./helper');
 
-const EXCLUDE_ERROR_FROM_NEW_RELIC = new RegExp(getOr(null, process.env.IGNORED_ERRORS));
+const EXCLUDE_ERRORS_FROM_NEW_RELIC = new RegExp(getOr(null, process.env.NEW_RELIC_IGNORED_ERRORS));
 
 module.exports = class NewRelicPlugin {
   // eslint-disable-next-line class-methods-use-this
@@ -27,7 +27,7 @@ module.exports = class NewRelicPlugin {
 
   // eslint-disable-next-line class-methods-use-this
   didEncounterErrors(rc) {
-    if (rc[0].message.match(EXCLUDE_ERROR_FROM_NEW_RELIC)) {
+    if (rc[0].message.match(EXCLUDE_ERRORS_FROM_NEW_RELIC)) {
       return;
     }
     newrelic.noticeError(rc[0]);
