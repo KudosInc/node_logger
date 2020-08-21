@@ -25,10 +25,12 @@ module.exports = class NewRelicPlugin {
   }
 
   // eslint-disable-next-line class-methods-use-this
+  isExcludedError(message) {
+    return message.match(EXCLUDE_ERRORS_FROM_NEW_RELIC);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
   didEncounterErrors(rc) {
-    if (rc[0].message.match(EXCLUDE_ERRORS_FROM_NEW_RELIC)) {
-      return;
-    }
-    newrelic.noticeError(rc[0]);
+    if (!this.isExcludedError(rc[0].message)) newrelic.noticeError(rc[0]);
   }
 };
