@@ -2,7 +2,7 @@
 const newrelic = require('newrelic');
 const helper = require('./helper');
 
-const EXCLUDE_ERRORS_FROM_NEW_RELIC = new RegExp(process.env.NEW_RELIC_IGNORED_ERRORS || "");
+const EXCLUDE_ERRORS_FROM_NEW_RELIC = new RegExp(process.env.NEW_RELIC_IGNORED_ERRORS || '');
 
 module.exports = class NewRelicPlugin {
   // eslint-disable-next-line class-methods-use-this
