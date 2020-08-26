@@ -25,12 +25,12 @@ module.exports = class NewRelicPlugin {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  isExcludedError(message) {
-    return message.match(EXCLUDE_ERRORS_FROM_NEW_RELIC);
+  isExcludedError(message, regex) {
+    return message.match(regex) !== null;
   }
 
   // eslint-disable-next-line class-methods-use-this
   didEncounterErrors(rc) {
-    if (!this.isExcludedError(rc[0].message)) newrelic.noticeError(rc[0]);
+    if (!this.isExcludedError(rc[0].message, EXCLUDE_ERRORS_FROM_NEW_RELIC)) newrelic.noticeError(rc[0]);
   }
 };
