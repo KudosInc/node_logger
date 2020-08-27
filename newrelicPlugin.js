@@ -2,7 +2,10 @@
 const newrelic = require('newrelic');
 const helper = require('./helper');
 
-const EXCLUDE_ERRORS_FROM_NEW_RELIC = new RegExp(process.env.NEW_RELIC_IGNORED_ERRORS || '');
+const DEFAULT_EXCLUDE_ERRORS_REGEX = '^DOES NOT MATCH ERROR MESSAGE$';
+const EXCLUDE_ERRORS_FROM_NEW_RELIC = new RegExp(
+  process.env.NEW_RELIC_IGNORED_ERRORS || DEFAULT_EXCLUDE_ERRORS_REGEX,
+);
 
 module.exports = class NewRelicPlugin {
   // eslint-disable-next-line class-methods-use-this
@@ -22,6 +25,11 @@ module.exports = class NewRelicPlugin {
       attributes.user_id = context.user.id;
     }
     newrelic.addCustomAttributes(attributes);
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  defaultExcludeErrorsRegex() {
+    return DEFAULT_EXCLUDE_ERRORS_REGEX;
   }
 
   // eslint-disable-next-line class-methods-use-this
