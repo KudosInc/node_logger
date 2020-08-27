@@ -5,17 +5,25 @@ const newrelicExtension = new NewrelicPlugin();
 describe('isExcludedError', () => {
   describe('with a valid regular expression', () => {
     test('returns true for messages matching the regular expression', () => {
-      expect(newrelicExtension.isExcludedError('Invalid email or password.', /Invalid/)).toBe(true);
+      const configString = '(Invalid email or password)|(Unauthorized access)|(HttpError 400)';
+      const regex = new RegExp(configString);
+      expect(newrelicExtension.isExcludedError('Invalid email or password.', regex)).toBe(true);
+      expect(newrelicExtension.isExcludedError(' Unauthorized access ', regex)).toBe(true);
+      expect(newrelicExtension.isExcludedError(' HttpError 400 ', regex)).toBe(true);
     });
 
     test('returns false for messages that do not match the regular expression', () => {
-      expect(newrelicExtension.isExcludedError('An error message', /Invalid/)).toBe(false);
+      const configString = '(Invalid email or password)|(Unauthorized access)|(HttpError 400)';
+      const regex = new RegExp(configString);
+      expect(newrelicExtension.isExcludedError('An error message', regex)).toBe(false);
     });
   });
 
   describe('with an empty string', () => {
     test('returns true all the time', () => {
-      expect(newrelicExtension.isExcludedError('An error message', '')).toBe(true);
+      const configString = '';
+      const regex = new RegExp(configString);
+      expect(newrelicExtension.isExcludedError('An error message', regex)).toBe(true);
     });
   });
 
