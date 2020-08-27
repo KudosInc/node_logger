@@ -30,7 +30,6 @@ describe('isExcludedError', () => {
   describe('with the default exclude errors regex', () => {
     test('returns false all the time', () => {
       const regex = new RegExp(newrelicExtension.defaultExcludeErrorsRegex());
-      console.log(`aaaa ${regex} and ${newrelicExtension.defaultExcludeErrorsRegex()}`);
       expect(newrelicExtension.isExcludedError('An error message', regex)).toBe(false);
     });
   });
