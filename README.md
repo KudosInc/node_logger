@@ -89,3 +89,9 @@ Also need to copy the New Relic default configuration file to the root directory
 ```bash
 cp ./node_modules/newrelic/newrelic.js .
 ```
+
+GraphQL errors can be ignored (not sent to New Relic) by setting the `NEW_RELIC_IGNORED_ERRORS` environment variable.
+
+```bash
+export NEW_RELIC_IGNORED_ERRORS=(Invalid email or password)|(Unauthorized access)|(HttpError 400)
+```

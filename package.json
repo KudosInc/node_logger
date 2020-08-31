@@ -7,7 +7,7 @@
   },
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "NEW_RELIC_ENABLED=false NEW_RELIC_NO_CONFIG_FILE=true jest",
     "lint": "eslint ."
   },
   "repository": {
@@ -40,6 +40,7 @@
     "eslint-plugin-import": "^2.14.0",
     "eslint-plugin-jsx-a11y": "^6.1.2",
     "eslint-plugin-react": "^7.12.3",
-    "jest": "^25.3.0"
+    "jest": "^26.4.2",
+    "newrelic": "^6.13.0"
   }
 }
