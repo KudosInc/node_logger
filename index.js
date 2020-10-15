@@ -61,8 +61,6 @@ class Logger {
   }
 
   appendRequestInformation() {
-    const metadata = newrelic.getLinkingMetadata(true);
-
     this.build({
       http: {
         referer: this.req.headers.referer,
@@ -75,7 +73,6 @@ class Logger {
           ip: this.req.ip,
         },
       },
-      ...metadata,
     });
   }
 
@@ -163,10 +160,14 @@ class Logger {
       this.response = {};
       return;
     }
+
+    /* grab metadata from newrelic to identify entity */
+    const metadata = newrelic.getLinkingMetadata(true);
     this.response = {
       ...this.response,
       severity: LEVEL_NUMBER_MAP[this.response.severity],
       level: LEVEL_NUMBER_MAP[this.response.severity],
+      ...metadata,
     };
     // eslint-disable-next-line no-console
     console.log(JSON.stringify(this.response));
