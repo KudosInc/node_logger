@@ -34,3 +34,9 @@ describe('isExcludedError', () => {
     });
   });
 });
+
+describe('getLinkingMetadata', () => {
+  test('should return empty object when newrelic is not enabled', () => {
+    expect(newrelicExtension.getLinkingMetadata()).toEqual({});
+  });
+});
