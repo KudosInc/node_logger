@@ -45,7 +45,7 @@ module.exports = class NewRelicPlugin {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  getLinkingMetadata() {
-    return newrelic.getLinkingMetadata(true);
+  getLinkingMetadata(omitSupportability = true) {
+    return newrelic.getLinkingMetadata(omitSupportability);
   }
 };
