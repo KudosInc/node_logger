@@ -162,7 +162,7 @@ class Logger {
     }
 
     /* grab metadata from newrelic to identify entity */
-    const metadata = newrelic.getLinkingMetadata(true);
+    const metadata = this.newrelicExtension().getLinkingMetadata();
     this.response = {
       ...this.response,
       severity: LEVEL_NUMBER_MAP[this.response.severity],
