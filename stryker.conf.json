@@ -3,7 +3,8 @@
   "packageManager": "npm",
   "reporters": [
     "html",
-    "progress"
+    "progress",
+    "clear-text"
   ],
   "mutate": [
     "*.js",
