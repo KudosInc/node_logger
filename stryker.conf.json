@@ -6,9 +6,8 @@
     "progress"
   ],
   "mutate": [
-    "helper.js",
-    "index.js",
-    "newrelicPlugin.js"
+    "*.js",
+    "!*config.js"
   ],
   "testRunner": "jest",
   "coverageAnalysis": "off"

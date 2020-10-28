@@ -9,7 +9,7 @@
   "scripts": {
     "test": "NEW_RELIC_ENABLED=false NEW_RELIC_NO_CONFIG_FILE=true jest",
     "lint": "eslint .",
-    "mutation-tests": "stryker run"
+    "test:mutation": "stryker run"
   },
   "repository": {
     "type": "git",
