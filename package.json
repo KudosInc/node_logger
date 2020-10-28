@@ -1,6 +1,6 @@
 {
   "name": "@kudosinc/node_logger",
-  "version": "3.0.2",
+  "version": "3.2.0",
   "description": "A logger for node services",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

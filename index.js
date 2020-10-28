@@ -10,8 +10,6 @@ const {
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
-/* eslint-disable import/no-unresolved */
-const newrelic = require('newrelic');
 const helper = require('./helper');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 // See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
@@ -61,8 +59,6 @@ class Logger {
   }
 
   appendRequestInformation() {
-    const metadata = newrelic.getLinkingMetadata(true);
-
     this.build({
       http: {
         referer: this.req.headers.referer,
@@ -75,7 +71,6 @@ class Logger {
           ip: this.req.ip,
         },
       },
-      ...metadata,
     });
   }
 
@@ -163,10 +158,14 @@ class Logger {
       this.response = {};
       return;
     }
+
+    /* grab metadata from newrelic to identify entity */
+    const metadata = this.newrelicExtension().getLinkingMetadata();
     this.response = {
       ...this.response,
       severity: LEVEL_NUMBER_MAP[this.response.severity],
       level: LEVEL_NUMBER_MAP[this.response.severity],
+      ...metadata,
     };
     // eslint-disable-next-line no-console
     console.log(JSON.stringify(this.response));
