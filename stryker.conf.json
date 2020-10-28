@@ -9,6 +9,11 @@
     "*.js",
     "!*config.js"
   ],
+  "thresholds": {
+    "high": 80,
+    "low": 40,
+    "break": 30
+  },
   "testRunner": "jest",
   "coverageAnalysis": "off"
 }
