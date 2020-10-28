@@ -24,10 +24,10 @@ jobs:
       uses: actions/setup-node@v1
       with:
         node-version: ${{ matrix.node-version }}
-    - run: npm install
-    - run: npm test
-    - run: npm test:mutation
-      env:
-        CI: true
     - run: npm run lint
     - run: npm audit --registry https://registry.npmjs.org
+    - run: npm install
+    - run: npm test
+      env:
+        CI: true
+    - run: npm run test:mutation
