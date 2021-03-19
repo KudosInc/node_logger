@@ -4,3 +4,7 @@ node_modules
 log
 coverage
 .nyc_output
+
+# stryker temp files
+.stryker-tmp
+reports

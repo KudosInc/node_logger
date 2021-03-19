@@ -8,7 +8,8 @@
   "main": "index.js",
   "scripts": {
     "test": "NEW_RELIC_ENABLED=false NEW_RELIC_NO_CONFIG_FILE=true jest",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:mutation": "stryker run"
   },
   "repository": {
     "type": "git",
@@ -35,6 +36,8 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
+    "@stryker-mutator/core": "^4.0.0",
+    "@stryker-mutator/jest-runner": "^4.0.0",
     "eslint": "^6.8.0",
     "eslint-config-airbnb": "^17.1.0",
     "eslint-plugin-import": "^2.14.0",
