@@ -13,12 +13,13 @@ module.exports = (logger) => {
         action,
         gqlVerb,
       });
-    },
-
-    // eslint-disable-next-line class-methods-use-this
-    willSendResponse({ response }) {
-      console.log('will send response', response);
-      logger.graphqlResponse(response);
+      return {
+        // eslint-disable-next-line class-methods-use-this
+        willSendResponse({ response }) {
+          console.log('will send response', response);
+          logger.graphqlResponse(response);
+        },
+      };
     },
   };
   return BasicLogging;
