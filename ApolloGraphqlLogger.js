@@ -1,7 +1,7 @@
 const helper = require('./helper');
 
 module.exports = (logger) => {
-  class BasicLogging {
+  const BasicLogging = {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart({ request: { query, variables, operationName } }) {
       const {
@@ -13,13 +13,13 @@ module.exports = (logger) => {
         action,
         gqlVerb,
       });
-    }
+    },
 
     // eslint-disable-next-line class-methods-use-this
     willSendResponse({ response }) {
       console.log('will send response', response);
       logger.graphqlResponse(response);
-    }
-  }
+    },
+  };
   return BasicLogging;
 };
