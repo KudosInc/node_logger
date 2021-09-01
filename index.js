@@ -208,10 +208,11 @@ class Logger {
     this.output();
   }
 
-  graphqlRequest({ query, variables }) {
+  graphqlRequest({
+    query, variables, action, gqlVerb,
+  }) {
     this.refreshRequestId();
     this.requestStartTime = now();
-    const { action, gqlVerb } = helper.parseGraphQLQuery(query);
     this.build({
       severity: LEVELS.info,
       message: `GraphQL ${gqlVerb} ${action}`,

@@ -4,11 +4,14 @@ module.exports = (logger) => {
   class BasicLogging {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart({ request: { query, variables, operationName } }) {
-      const { query: parsedQuery, action } = helper.parseGraphQLQuery(query, operationName);
+      const {
+        query: parsedQuery, action, gqlVerb,
+      } = helper.parseGraphQLQuery(query, operationName);
       logger.graphqlRequest({
-        parsedQuery,
+        query: parsedQuery,
         variables,
         action,
+        gqlVerb,
       });
     }
 
