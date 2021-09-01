@@ -131,7 +131,7 @@ class Logger {
 
   graphqlExtension() {
     if (!this.extension) {
-      this.extension = new (ApolloGraphqlLogger(this))();
+      this.extension = ApolloGraphqlLogger(this);
     }
     return this.extension;
   }
