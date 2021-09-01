@@ -4,6 +4,7 @@ module.exports = (logger) => {
   const BasicLogging = {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart(requestContext) {
+      console.log('REQUEST CONTEXT', requestContext);
       const [definition] = requestContext.document.definitions;
       console.log(definition.name);
       console.log(definition.name.value);
