@@ -6,6 +6,7 @@ const QUERY_ACTION_PATTERN = new RegExp(/^\s*\w+\s+(\w+)/);
 
 
 const parseGraphQLQuery = (queryString, operationName) => {
+  console.log('queryString', queryString);
   const query = queryString.replace(extraSpacesNewLineRemovalRegexp, ' ');
   const match = QUERY_ACTION_PATTERN.exec(query);
   const action = operationName || match ? match[1] : 'no action';
