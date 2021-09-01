@@ -150,6 +150,13 @@ class Logger {
     ];
   }
 
+  allExpressExtensions() {
+    return [
+      () => this.graphqlExtension(),
+      () => this.newrelicExtension(),
+    ];
+  }
+
   output() {
     if (
       !canLog(this.response.severity)
