@@ -5,9 +5,17 @@ module.exports = (logger) => {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart(requestContext) {
       console.log('REQUEST CONTEXT', requestContext);
-      const [definition] = requestContext.document.definitions;
-      console.log(definition.name);
-      console.log(definition.name.value);
+      return {
+        didResolveOperation(r) {
+          console.log('!!!!!', r);
+          return {
+            // eslint-disable-next-line class-methods-use-this
+            willSendResponse({ response }) {
+              logger.graphqlResponse(response);
+            },
+          };
+        },
+      };
       // console.log('!!!!!', request);
       // const { query, variables, operationName } = request;
       // const {
@@ -20,12 +28,12 @@ module.exports = (logger) => {
       //   action,
       //   gqlVerb,
       // });
-      return {
-        // eslint-disable-next-line class-methods-use-this
-        willSendResponse({ response }) {
-          logger.graphqlResponse(response);
-        },
-      };
+      // return {
+      //   // eslint-disable-next-line class-methods-use-this
+      //   willSendResponse({ response }) {
+      //     logger.graphqlResponse(response);
+      //   },
+      // };
     },
   };
   return BasicLogging;
