@@ -16,8 +16,9 @@ module.exports = (logger) => {
     }
 
     // eslint-disable-next-line class-methods-use-this
-    willSendResponse({ graphqlResponse }) {
-      logger.graphqlResponse(graphqlResponse);
+    willSendResponse({ response }) {
+      console.log('will send response', response);
+      logger.graphqlResponse(response);
     }
   }
   return BasicLogging;
