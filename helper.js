@@ -12,9 +12,6 @@ const parseGraphQLQuery = (queryString, operationName) => {
   const action = operationName || match ? match[1] : 'no action';
   const gqlVerb = first(query.match(QUERY_MUTATION_PATTERN));
 
-  console.log('gqlVerb', gqlVerb);
-  console.log('action', action);
-
   return { query, action, gqlVerb };
 };
 
