@@ -12,6 +12,7 @@ const uuid = require('uuid/v4');
 const moment = require('moment');
 const helper = require('./helper');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
+const plugin = require('@newrelic/apollo-server-plugin')
 // See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
 // for an example logger
 const NewrelicPlugin = require('./newrelicPlugin');
@@ -142,10 +143,10 @@ class Logger {
     return this._newrelicExtension;
   }
 
-  allExpressExtensions() {
+  allExpressPlugins() {
     return [
       () => this.graphqlExtension(),
-      () => this.newrelicExtension(),
+      plugin,
     ];
   }
 

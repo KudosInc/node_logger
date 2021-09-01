@@ -8,10 +8,14 @@ const QUERY_ACTION_PATTERN = new RegExp(/^\s*\w+\s+(\w+)/);
 
 
 const parseGraphQLQuery = (queryString, parsedQuery) => {
+  console.log('queryString', queryString);
+  console.log('parsedQuery', parsedQuery);
   const query = (queryString || print(parsedQuery)).replace(extraSpacesNewLineRemovalRegexp, ' ');
   const match = QUERY_ACTION_PATTERN.exec(query);
   const action = match ? match[1] : 'no action';
   const gqlVerb = first(query.match(QUERY_MUTATION_PATTERN));
+  console.log('action', action);
+  console.log('gqlVerb', gqlVerb);
 
   return { query, action, gqlVerb };
 };

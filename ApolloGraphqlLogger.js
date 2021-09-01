@@ -5,6 +5,8 @@ module.exports = (logger) => {
     // eslint-disable-next-line class-methods-use-this
     requestDidStart({ queryString, parsedQuery, variables }) {
       const { query } = helper.parseGraphQLQuery(queryString, parsedQuery);
+      console.log('query', query);
+      console.log('query', variables);
       logger.graphqlRequest({
         query,
         variables,
