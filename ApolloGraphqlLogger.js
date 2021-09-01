@@ -3,10 +3,11 @@ const helper = require('./helper');
 module.exports = (logger) => {
   class BasicLogging {
     // eslint-disable-next-line class-methods-use-this
-    requestDidStart({ queryString, parsedQuery, variables }) {
-      const { query } = helper.parseGraphQLQuery(queryString, parsedQuery);
+    requestDidStart({ query, operationName, variables }) {
+      const { action } = helper.parseGraphQLQuery(query, operationName);
       console.log('query', query);
-      console.log('query', variables);
+      console.log('variables', variables);
+      console.log('action', action);
       logger.graphqlRequest({
         query,
         variables,
