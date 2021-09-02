@@ -144,7 +144,7 @@ class Logger {
 
   allExpressPlugins() {
     return [
-      () => this.graphqlExtension(),
+      this.graphqlExtension(),
       plugin,
     ];
   }
