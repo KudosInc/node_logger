@@ -9,7 +9,7 @@ const operationName = (queryString, variables) => {
   console.log('queryString.split(\'+\')', queryString.split('+'));
   console.log('queryString.split(\'+\').pop()', queryString.split('+').pop());
   console.log('queryString.split(\'+\').pop().split(\'{\')', queryString.split('+').pop()).split('{');
-  console.log('[0]', queryString.split('+').pop()).split('{'));
+  console.log('[0]', queryString.split('+').pop().split('{'));
   if (isEmpty(variables)) return queryString.split('+').pop().split('{')[0];
   return queryString.split('+').pop().split('(')[0];
 };
