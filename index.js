@@ -10,7 +10,7 @@ const {
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
 const moment = require('moment');
-const helper = require('./helper');
+const plugin = require('@newrelic/apollo-server-plugin');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 // See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
 // for an example logger
@@ -130,7 +130,7 @@ class Logger {
 
   graphqlExtension() {
     if (!this.extension) {
-      this.extension = new (ApolloGraphqlLogger(this))();
+      this.extension = ApolloGraphqlLogger(this);
     }
     return this.extension;
   }
@@ -140,6 +140,13 @@ class Logger {
       this._newrelicExtension = new NewrelicPlugin();
     }
     return this._newrelicExtension;
+  }
+
+  allExpressPlugins() {
+    return [
+      this.graphqlExtension(),
+      plugin,
+    ];
   }
 
   allExpressExtensions() {
@@ -200,10 +207,11 @@ class Logger {
     this.output();
   }
 
-  graphqlRequest({ query, variables }) {
+  graphqlRequest({
+    query, variables, action, gqlVerb,
+  }) {
     this.refreshRequestId();
     this.requestStartTime = now();
-    const { action, gqlVerb } = helper.parseGraphQLQuery(query);
     this.build({
       severity: LEVELS.info,
       message: `GraphQL ${gqlVerb} ${action}`,
