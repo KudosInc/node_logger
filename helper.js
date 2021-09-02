@@ -12,6 +12,7 @@ const operationName = (queryString, variables) => {
 
 const parseGraphQLQuery = (queryString, variables) => {
   const action = operationName(queryString, variables);
+  console.log('action', action);
   const query = queryString ? queryString.replace(extraSpacesNewLineRemovalRegexp, ' ') : '';
   const gqlVerb = first(query.match(QUERY_MUTATION_PATTERN));
 
