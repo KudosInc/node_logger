@@ -5,11 +5,12 @@ const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
 
 const operationName = (queryString, variables) => {
   let action;
+  const query = queryString;
   if (isEmpty(variables)) {
     // eslint-disable-next-line prefer-destructuring
-    action = queryString.split('{')[1];
+    action = query.split('{')[1];
   } else {
-    [action] = queryString.split('{')[1].split('(');
+    [action] = query.split('{')[1].split('(');
   }
   return trim(action.replace(extraSpacesNewLineRemovalRegexp, ' '));
 };
