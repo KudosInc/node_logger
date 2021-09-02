@@ -6,7 +6,8 @@ const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
 const operationName = (queryString, variables) => {
   let action;
   if (isEmpty(variables)) {
-    [action] = queryString.split('{');
+    // eslint-disable-next-line prefer-destructuring
+    action = queryString.split('{')[1];
   } else {
     [action] = queryString.split('{')[1].split('(');
   }
