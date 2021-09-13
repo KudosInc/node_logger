@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 const {
   getOr,
   omitBy,
@@ -140,6 +141,10 @@ class Logger {
       this._newrelicExtension = new NewrelicPlugin();
     }
     return this._newrelicExtension;
+  }
+
+  newrelicPlugin() {
+    return plugin;
   }
 
   allExpressPlugins() {
