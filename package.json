@@ -33,7 +33,7 @@
     "@newrelic/apollo-server-plugin": "^1.0.2",
     "graphql": "^14.2.1",
     "lodash": "^4.17.21",
-    "moment": "^2.23.0",
+    "moment": "^2.29.2",
     "uuid": "^3.3.2"
   },
   "devDependencies": {
