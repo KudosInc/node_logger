@@ -8,8 +8,10 @@
   "main": "index.js",
   "scripts": {
     "test": "NEW_RELIC_ENABLED=false NEW_RELIC_NO_CONFIG_FILE=true jest",
+    "test-ci": "npm run test",
     "lint": "eslint .",
-    "test:mutation": "stryker run"
+    "test:mutation": "stryker run",
+    "build": "echo 'nothing here :)'"
   },
   "repository": {
     "type": "git",
