@@ -7,11 +7,12 @@
   },
   "main": "index.js",
   "scripts": {
+    "build": "echo 'nothing here :)'",
     "test": "NEW_RELIC_ENABLED=false NEW_RELIC_NO_CONFIG_FILE=true jest",
     "test-ci": "npm run test",
     "lint": "eslint .",
     "test:mutation": "stryker run",
-    "build": "echo 'nothing here :)'",
+    "release:publish": "npm publish",
     "version:bump": "bump $APPLICATION_VERSION"
   },
   "repository": {
