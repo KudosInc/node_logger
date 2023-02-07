@@ -17,8 +17,8 @@ const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 // for an example logger
 const NewrelicPlugin = require('./newrelicPlugin');
 
-const EXCLUDE_URLS_FROM_LOG_PATTERN = new RegExp(/(health_check)|(health-check)|(graphql)|(server-health)|(is_tango_api_up)/);
-const EXCLUDE_MESSAGE_FROM_LOG_PATTERN = new RegExp(/jwt expired/);
+const EXCLUDE_URLS_FROM_LOG_PATTERN = /(health_check)|(health-check)|(graphql)|(server-health)|(is_tango_api_up)/;
+const EXCLUDE_MESSAGE_FROM_LOG_PATTERN = /jwt expired/;
 
 const LEVELS = {
   emerg: 0,
@@ -33,8 +33,8 @@ const LEVELS = {
 
 const LEVEL_NUMBER_MAP = invert(LEVELS);
 
-const canLog = level => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
-const sanitize = map => omitBy(value => !isNumber(value) && isEmpty(value), map);
+const canLog = (level) => getOr(LEVELS.info, `[${process.env.KUDOS_LOG_LEVEL}]`, LEVELS) >= level;
+const sanitize = (map) => omitBy((value) => !isNumber(value) && isEmpty(value), map);
 
 let loggerInstance = null;
 

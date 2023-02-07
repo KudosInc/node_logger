@@ -1,7 +1,7 @@
 const { first, isEmpty, trim } = require('lodash/fp');
 
-const extraSpacesNewLineRemovalRegexp = new RegExp(/(\r\n|\n|\r|\s\s+)/gm);
-const QUERY_MUTATION_PATTERN = new RegExp(/query|mutation/);
+const extraSpacesNewLineRemovalRegexp = /(\r\n|\n|\r|\s\s+)/gm;
+const QUERY_MUTATION_PATTERN = /query|mutation/;
 
 const operationName = (queryString, variables) => {
   let action;

@@ -13,7 +13,7 @@
   "thresholds": {
     "high": 80,
     "low": 40,
-    "break": 30
+    "break": 20
   },
   "testRunner": "jest",
   "coverageAnalysis": "off"

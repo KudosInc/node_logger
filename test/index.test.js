@@ -1,4 +1,3 @@
-
 const logger = require('../index');
 
 describe('index.test.js', () => {
