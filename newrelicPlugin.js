@@ -10,7 +10,7 @@ const EXCLUDE_ERRORS_FROM_NEW_RELIC = new RegExp(
 module.exports = class NewRelicPlugin {
   // eslint-disable-next-line class-methods-use-this
   requestDidStart({
-    queryString, parsedQuery, context, operationName, request: { variables }
+    queryString, parsedQuery, context, operationName, request: { variables },
   }) {
     const { query, action, gqlVerb } = helper.parseGraphQLQuery(queryString, parsedQuery);
 
