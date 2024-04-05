@@ -1,6 +1,6 @@
 {
   "name": "@kudosinc/node_logger",
-  "version": "3.2.0",
+  "version": "4.1.0",
   "description": "A logger for node services",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
@@ -37,8 +37,8 @@
     "uuid": "^3.3.2"
   },
   "devDependencies": {
-    "@stryker-mutator/core": "^6.3.1",
-    "@stryker-mutator/jest-runner": "^6.3.1",
+    "@stryker-mutator/core": "^8.2.6",
+    "@stryker-mutator/jest-runner": "^8.2.6",
     "eslint": "^8.33.0",
     "eslint-config-airbnb": "^19.0.4",
     "eslint-plugin-import": "^2.27.5",
