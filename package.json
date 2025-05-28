@@ -1,6 +1,6 @@
 {
   "name": "@kudosinc/node_logger",
-  "version": "4.2.0-test",
+  "version": "4.3.4-test",
   "description": "A logger for node services",
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
