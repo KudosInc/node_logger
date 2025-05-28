@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/KudosInc/node_logger#readme",
   "peerDependencies": {
-    "newrelic": "^9.9.0"
+    "newrelic": ">=9.9.0 <13"
   },
   "dependencies": {
     "@newrelic/apollo-server-plugin": "^5.1.0",
