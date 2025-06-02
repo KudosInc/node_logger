@@ -10,7 +10,7 @@ const {
   omit,
 } = require('lodash/fp');
 const uuid = require('uuid/v4');
-const moment = require('moment');
+const dayjs = require('dayjs');
 const plugin = require('@newrelic/apollo-server-plugin');
 const ApolloGraphqlLogger = require('./ApolloGraphqlLogger');
 // See https://github.com/newrelic/newrelic-winston-logenricher-node/blob/master/lib/createFormatter.js
@@ -96,7 +96,7 @@ class Logger {
       ...this.response,
       ...object,
       service: process.env.SERVICE_NAME,
-      timestamp: moment().format(),
+      timestamp: dayjs().format(),
       version: process.env.APP_VERSION || 1,
       action: object.action || get('route.stack[0].name', this.req),
       organization_id: this.app ? this.app.get('organization_id') : null,
